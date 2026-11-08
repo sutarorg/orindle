@@ -1,4 +1,6 @@
-# Integration plan (future implementation)
+# Integration plan and implementation status
+
+The application now contains integration drafts for Supabase, OpenRouter, Dodo Payments, and private R2 storage. The implementation is not yet externally validated: secrets are not configured, SQL has not been applied, and no provider or payment calls have been made. Use [Setup and handoff](SETUP_AND_HANDOFF.md) for environment configuration and operator verification steps. The roadmap below records the remaining validation and release work.
 
 ## Model catalogue and chat — OpenRouter
 - Create server-only credentials and fetch the live catalogue; normalize IDs/aliases and capabilities; store last verified state and pricing metadata.
