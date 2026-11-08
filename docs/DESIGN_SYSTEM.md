@@ -1,5 +1,7 @@
 # Orindle design system
 
+> **Status note (2026-11-08):** This records design intent and source-level components. Browser screenshots, breakpoint review and WCAG verification have not been completed in the current audit. Some “local-only/demo” interaction notes below predate Prompt 2. See `DESIGN_FINAL_AUDIT.md` and `IMPLEMENTATION_STATUS.md` for current state.
+
 ## Foundations
 - **Typography:** Poppins local font via `next/font/local`, weights 400, 500, 600, 700. Body 14px default; hero 56px desktop / 37px mobile; section title ~36px / 27px; cards 10–15px; supporting copy 8–12px. Compact tracking on display text, comfortable body line height.
 - **Color tokens:** `--bg #fff`; `--soft #f8faf9`; `--soft-green #f3f8f5`; `--ink #111512`; `--muted #68736c`; `--quiet #98a29b`; `--line #e8ede9`; `--hair #f0f2f0`; `--green #16865b`; `--green-dark #07543b`; `--mint #ddf5e9`; `--cyan #ddf5f8`; `--forest #10271e`.

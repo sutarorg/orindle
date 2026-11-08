@@ -104,6 +104,7 @@ create table public.messages (
   prompt_tokens integer check (prompt_tokens is null or prompt_tokens >= 0),
   completion_tokens integer check (completion_tokens is null or completion_tokens >= 0),
   provider_cost_usd numeric(18,10) check (provider_cost_usd is null or provider_cost_usd >= 0),
+  provider_cost_basis text check (provider_cost_basis in ('actual','estimated')),
   credit_reservation_id uuid,
   idempotency_key text,
   error_code text,
@@ -202,6 +203,7 @@ create table public.generation_jobs (
   actual_credits integer check (actual_credits is null or actual_credits >= 0),
   estimated_cost_usd numeric(18,10) check (estimated_cost_usd is null or estimated_cost_usd >= 0),
   actual_cost_usd numeric(18,10) check (actual_cost_usd is null or actual_cost_usd >= 0),
+  actual_cost_basis text check (actual_cost_basis in ('actual','estimated')),
   error_code text,
   submitted_at timestamptz,
   completed_at timestamptz,
@@ -235,6 +237,7 @@ create table public.generation_usage (
   input_tokens integer not null default 0 check (input_tokens >= 0),
   output_tokens integer not null default 0 check (output_tokens >= 0),
   provider_cost_usd numeric(18,10) not null check (provider_cost_usd >= 0),
+  cost_basis text not null check (cost_basis in ('actual','estimated')),
   credits_charged integer not null check (credits_charged >= 0),
   created_at timestamptz not null default now(),
   check (job_id is not null or message_id is not null)
@@ -367,6 +370,7 @@ returns uuid language plpgsql security definer set search_path = '' as $$
 declare v_user uuid := auth.uid(); v_wallet public.credit_wallets; v_id uuid;
 begin
   if v_user is null or p_amount is null or p_amount <= 0 or length(p_idempotency_key) not between 1 and 160 then raise exception 'invalid_reservation'; end if;
+  if p_generation_job_id is not null and not exists(select 1 from public.generation_jobs j where j.id=p_generation_job_id and j.user_id=v_user) then raise exception 'generation_job_not_found'; end if;
   select id into v_id from public.credit_reservations where user_id=v_user and idempotency_key=p_idempotency_key;
   if v_id is not null then return v_id; end if;
   select * into v_wallet from public.credit_wallets where user_id=v_user for update;
@@ -381,8 +385,10 @@ end; $$;
 
 create or replace function public.settle_credit_reservation(p_reservation_id uuid,p_actual_credits integer,p_actual_cost_usd numeric default null)
 returns text language plpgsql security definer set search_path = '' as $$
-declare v_user uuid := auth.uid(); v_r public.credit_reservations; v_wallet public.credit_wallets; v_delta integer;
+declare v_user uuid; v_r public.credit_reservations; v_wallet public.credit_wallets; v_delta integer;
 begin
+  if auth.role() <> 'service_role' then raise exception 'not_authorized'; end if;
+  select user_id into v_user from public.credit_reservations where id=p_reservation_id;
   if v_user is null or p_actual_credits is null or p_actual_credits < 0 or (p_actual_cost_usd is not null and p_actual_cost_usd < 0) then raise exception 'invalid_settlement'; end if;
   select * into v_r from public.credit_reservations where id=p_reservation_id and user_id=v_user for update;
   if not found then raise exception 'reservation_not_found'; end if;
@@ -404,6 +410,16 @@ begin
   end if;
   update public.credit_reservations set status=case when p_actual_credits=0 then 'released' else 'settled' end,actual_credits=p_actual_credits,actual_cost_usd=p_actual_cost_usd,settled_at=now() where id=v_r.id;
   return case when p_actual_credits=0 then 'released' else 'settled' end;
+end; $$;
+
+create or replace function public.flag_credit_reservation_review(p_reservation_id uuid)
+returns boolean language plpgsql security definer set search_path = '' as $$
+declare v_user uuid;
+begin
+  if auth.role() <> 'service_role' then raise exception 'not_authorized'; end if;
+  update public.credit_reservations set status='needs_review'
+    where id=p_reservation_id and status='reserved' returning user_id into v_user;
+  return v_user is not null;
 end; $$;
 
 create or replace function public.grant_monthly_credits(p_user_id uuid,p_subscription_id uuid,p_provider_event_id text,p_period_start timestamptz,p_period_end timestamptz)
@@ -456,10 +472,12 @@ end; $$;
 -- Automatic profile/ledger writes and all credit/catalogue mutation functions are server-only or transactional RPCs.
 revoke all on function public.reserve_credits(integer,text,uuid) from public;
 revoke all on function public.settle_credit_reservation(uuid,integer,numeric) from public;
+revoke all on function public.flag_credit_reservation_review(uuid) from public;
 revoke all on function public.grant_monthly_credits(uuid,uuid,text,timestamptz,timestamptz) from public;
 revoke all on function public.sync_model_catalogue(jsonb,uuid) from public;
 grant execute on function public.reserve_credits(integer,text,uuid) to authenticated;
-grant execute on function public.settle_credit_reservation(uuid,integer,numeric) to authenticated;
+grant execute on function public.settle_credit_reservation(uuid,integer,numeric) to service_role;
+grant execute on function public.flag_credit_reservation_review(uuid) to service_role;
 grant execute on function public.grant_monthly_credits(uuid,uuid,text,timestamptz,timestamptz) to service_role;
 grant execute on function public.sync_model_catalogue(jsonb,uuid) to service_role;
 

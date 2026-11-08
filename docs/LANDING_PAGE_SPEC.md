@@ -1,5 +1,7 @@
 # Landing page specification
 
+> **Status note (2026-11-08):** The following is the original design acceptance spec, not live visual sign-off. Backend pricing/catalogue APIs now exist, but live model data and provider integrations are unverified. The home page remains USD-default and must not claim a verified model count until live catalogue gates pass. Policy content requires owner/legal review. See `DESIGN_FINAL_AUDIT.md` for the actual visual QA limitation.
+
 Route `/`. Current implementation sequence:
 1. Sticky white header: brand, Features, AI Models, Pricing, FAQ, About, Contact; Login and Get Started. Mobile collapsible menu.
 2. Centered pale mint-to-cyan hero; nonnumeric verified-safe eyebrow, title “One Powerful AI Workspace.”, explanation, Get Started / Explore Models, honest one-subscription note.

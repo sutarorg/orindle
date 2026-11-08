@@ -21,6 +21,8 @@ do $$ begin
   if (select count(*) from public.conversations) <> 1 then raise exception 'RLS: user A should see exactly their conversation'; end if;
   if (select count(*) from public.conversations where id='00000000-0000-4000-8000-000000000202') <> 0 then raise exception 'RLS: user A read another user conversation'; end if;
   if (select count(*) from public.credit_wallets where user_id='00000000-0000-4000-8000-000000000102') <> 0 then raise exception 'RLS: user A read another user wallet'; end if;
+  if has_function_privilege('authenticated','public.settle_credit_reservation(uuid,integer,numeric)','EXECUTE') then raise exception 'RLS: authenticated users can settle their own reservations without server verification'; end if;
+  if has_function_privilege('authenticated','public.flag_credit_reservation_review(uuid)','EXECUTE') then raise exception 'RLS: authenticated users can manipulate reservation review state'; end if;
   begin
     insert into public.library_items(user_id,category,title,uploaded_file_id) values(auth.uid(),'file','forged link','00000000-0000-4000-8000-000000000301');
     raise exception 'RLS: user A linked another user file into their Library';

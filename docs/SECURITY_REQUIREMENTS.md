@@ -1,6 +1,6 @@
 # Security requirements
 
-**Current status:** security controls are not implemented. UI authentication and admin routes are demonstrations. Do not deploy as a customer service.
+**Document status:** This is the original security-requirements checklist, not an implementation-status report. Some controls now exist in source (authentication/role checks, owner checks, private storage paths, validation, webhook verification and transactional credit RPCs), but none have been exercised against configured services. Important gaps remain; see `SECURITY_IMPLEMENTATION.md`, `SECURITY_AUDIT_REPORT.md` and `FINAL_LAUNCH_STATUS.md`. Do not deploy commercially until the launch gates pass.
 
 ## Identity and access
 - Require server-side auth for `/app/*`; verify ownership on each data operation.
@@ -25,4 +25,4 @@
 - Backups, recovery, data residency, retention/deletion schedule and incident response playbook.
 
 ## Privacy/release gates
-Before launch publish accurate privacy, terms and refund policies, retention and provider disclosure, subprocessors, user controls and verified support channel. Complete threat modeling, dependency/license review, pen test or equivalent, accessibility/privacy reviews, incident and breach response readiness. Current app `/admin` is not protected and must be gated before any deployment.
+Before launch publish accurate privacy, terms and refund policies, retention and provider disclosure, subprocessors, user controls and verified support channel. Complete threat modeling, dependency/license review, pen test or equivalent, accessibility/privacy reviews, incident and breach response readiness. The `/admin` route now has a server role guard in source, but its live role configuration and data panels have not been verified; see the audit reports before deployment.

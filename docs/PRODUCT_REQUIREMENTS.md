@@ -1,6 +1,6 @@
-# Orindle product requirements (frontend foundation)
+# Orindle product requirements and implementation status
 
-**Status:** design/build milestone; not a launched service. Last updated 2026-11-08.
+**Status:** implementation draft with backend/API code present; integrations and launch gates remain unverified. Not a launched or production-approved service. Last updated 2026-11-08.
 
 ## Product definition
 Orindle is a subscription-based workspace concept for compatible AI chat models, image and video generation, file uploads, standalone HTML website generation, history and a library. Brand tagline requested: **One Workspace. 100+ AI Models.** The numeric claim is gated: the current interface does not assert a verified count because no synchronized live catalogue is connected. Use a nonnumeric public line until the gate is met.

@@ -1,4 +1,6 @@
-# API architecture proposal (not implemented)
+# API architecture proposal (historical)
+
+> This proposal predates the implemented API routes. Use `API_ENDPOINTS.md` for the current route inventory. Routes and providers have not been exercised against configured external services in this audit.
 
 All customer endpoints must authenticate, authorize ownership, validate input, rate limit and return an opaque request/job ID. Use typed schemas and stable error codes. Do not proxy arbitrary user-supplied provider URLs.
 
