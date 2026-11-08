@@ -18,6 +18,7 @@ npm run typecheck
 npm run lint
 npm run test
 npm run build
+npm run check:env
 ```
 
 ## Integration setup and release gates

@@ -1,4 +1,6 @@
-# Database schema proposal (not implemented)
+# Database schema proposal (historical)
+
+> The original proposal below predates the implemented draft migration. It is not the canonical current schema; use `FINAL_DATABASE_SCHEMA.md` and `supabase/migrations/202611080001_core.sql`. The migration has only been syntax-parsed, not applied or tested against Postgres.
 
 Use PostgreSQL; use UUID primary keys; UTC timestamps; tenant/user scoped access; immutable audit/ledger events where appropriate. Encrypt secrets and minimize personal data. Exact ORM/migrations remain for Prompt 2.
 
